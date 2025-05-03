@@ -1,10 +1,12 @@
 import math
 
 from PyQt6.QtCore import Qt, pyqtSignal, QEvent
+from PyQt6.QtGui import QKeySequence
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QKeySequenceEdit, QLineEdit, QFrame, QScrollArea, \
     QPushButton
 
 from backend.config import Config
+from backend.translator import Translator
 
 
 class BindCreate(QWidget):
@@ -15,6 +17,7 @@ class BindCreate(QWidget):
         super().__init__()
 
         self.config = Config()
+        self.translator = Translator()
 
         self.actions = actions
         self.binds = binds
@@ -54,14 +57,14 @@ class BindCreate(QWidget):
         self.actionsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.actionsLayout.setSpacing(5)
 
-        header = QLabel("Add bind:")
+        header = QLabel(f"{self.translator.translate('add_bind')}:")
         header.setFixedHeight(int(30 * self.config.scale[self.config.selectedScale]['scale']))
         header.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']};"
             f"font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
         header.setContentsMargins(1, 0, 0, 0)
 
-        self.keybindHeader = QLabel("Key bind:")
+        self.keybindHeader = QLabel(f"{self.translator.translate('key_bind')}:")
         self.keybindHeader.setContentsMargins(1, 0, 0, 0)
         self.keybindHeader.setStyleSheet(
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']};"
@@ -87,7 +90,7 @@ class BindCreate(QWidget):
 
         keybindLayout.addWidget(self.key_sequence_edit)
 
-        actionHeader = QLabel("Actions:")
+        actionHeader = QLabel(f"{self.translator.translate('actions')}:")
         actionHeader.setContentsMargins(1, 0, 0, 0)
         actionHeader.setStyleSheet(
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']};"
@@ -118,7 +121,7 @@ class BindCreate(QWidget):
                 f"background: {self.config.colorMode[self.config.selectedTheme]['widgetBackground']};"
                 f"border-radius: 5px;")
 
-            actionLabel = QLabel(action_name)
+            actionLabel = QLabel(self.actions.get_action_name_by_name(action_name))
             actionLabel.setStyleSheet(
                 f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']};"
                 f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 700;")
@@ -162,11 +165,11 @@ class BindCreate(QWidget):
         buttons = QWidget()
         buttonsLayout = QVBoxLayout(buttons)
 
-        createButton = QPushButton("Create")
+        createButton = QPushButton(self.translator.translate("accept"))
         createButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(createButton, '#3498DB', '#2980b9', '#206694')
 
-        cancelButton = QPushButton("Cancel")
+        cancelButton = QPushButton(self.translator.translate("cancel"))
         cancelButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(cancelButton, '#EB4D4B', '#D34543', '#A83735')
 
@@ -196,14 +199,17 @@ class BindCreate(QWidget):
         key_sequence = self.key_sequence_edit.keySequence().toString().upper()
         key_sequence = " + ".join(key_sequence.split("+"))
         if self.selectedAction is not None and not self.combination_found and not key_sequence == "":
+            action_name = list(self.actions.actions[self.selectedAction].keys())[0]
+
             widget = self.getWidgetByName(f"BindAction_{self.selectedAction}")
-            label = widget.findChild(QLabel)
             widget.setStyleSheet(f"background: {self.config.colorMode[self.config.selectedTheme]['widgetBackground']};"
                                  f"border-radius: 5px;")
+            label = widget.findChild(QLabel)
             label.setStyleSheet(
                 f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']};"
                 f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 700;")
-            self.binds.push(key_sequence, label.text())
+
+            self.binds.push(key_sequence, action_name)
             self.selectedAction = None
             self.bindCreate.emit()
             self.switchTab.emit(5)
@@ -230,8 +236,9 @@ class BindCreate(QWidget):
                             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 700;")
 
                 if widget:
-                    widget.setStyleSheet(f"background: {self.config.colorMode[self.config.selectedTheme]['primaryColor']};"
-                                         f"border-radius: 5px;")
+                    widget.setStyleSheet(
+                        f"background: {self.config.colorMode[self.config.selectedTheme]['primaryColor']};"
+                        f"border-radius: 5px;")
                     label = widget.findChild(QLabel)
                     if label:
                         label.setStyleSheet(
@@ -274,11 +281,12 @@ class BindCreate(QWidget):
             for combination, action_info in self.binds.get().items():
                 for sequence, action in action_info.items():
                     if sequence == key_sequence:
-                        self.keybindHeader.setText("Key bind: <font color='#EB4D4B'>(This combination exists!)</font>")
+                        self.keybindHeader.setText(f"{self.translator.translate('key_bind')}: "
+                                                   f"<font color='#EB4D4B'>({self.translator.translate('this_combination_exists')})</font>")
                         self.combination_found = True
                         break
             else:
-                self.keybindHeader.setText("Key bind:")
+                self.keybindHeader.setText(f"{self.translator.translate('key_bind')}:")
 
     def set_uppercase_and_center_text(self):
         line_edit = self.key_sequence_edit.findChild(QLineEdit, "qt_keysequenceedit_lineedit")
@@ -302,7 +310,7 @@ class BindCreate(QWidget):
                     f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']};"
                     f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 700;")
         self.selectedAction = None
-        self.keybindHeader.setText("Key bind:")
+        self.keybindHeader.setText(f"{self.translator.translate('key_bind')}:")
         line_edit = self.key_sequence_edit.findChild(QLineEdit, "qt_keysequenceedit_lineedit")
         if line_edit:
             line_edit.setAlignment(Qt.AlignmentFlag.AlignLeft)

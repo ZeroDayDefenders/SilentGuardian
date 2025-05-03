@@ -244,7 +244,13 @@ class CallbackHandler:
                 inputs[input_id].threshold_exceeded = True
                 inputs[input_id].start_time = datetime.datetime.now()
                 if debug:
-                    print(f"Threshold reached for stream {input_id}: {inputs[input_id].threshold_not_reached}")
+                    print(f"Threshold reached for stream {input_id}")
+
+                if cutoff.interrupt_fade_if_needed():
+                    if debug:
+                        print("Fade up interrupted due to sound detection")
+                    return
+
                 cutoff.set_threshold_reached(True)
                 one_reached = False
                 for key, stream_state in inputs.items():

@@ -23,7 +23,7 @@ class Logger:
     def log(self, class_name, message):
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_entry = f"[{timestamp}] [{class_name}] {message}\n"
-        with open(self.log_file, "a") as file:
+        with open(self.log_file, "a", encoding='utf-8') as file:
             file.write(log_entry)
 
     def save_logs_on_exit(self):

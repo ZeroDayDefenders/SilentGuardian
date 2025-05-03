@@ -1,11 +1,13 @@
 from backend.global_state_manager import GlobalStateManager
 from backend.logger import Logger
+from backend.translator import Translator
 
 
 class Actions:
     def __init__(self, core, audio_controller, cutoff, input_manager, debug):
         self.core = core
         self.audio_controller = audio_controller
+        self.translator = Translator()
         self.cutoff = cutoff
         self.input_manager = input_manager
         self.debug = debug
@@ -14,22 +16,37 @@ class Actions:
         self.is_manually_muted = False
         self.is_input1_disabled = False
         self.is_input2_disabled = False
+
         self.actions = {
-            0: {"MUTE CONTROLLED APP": self.mute_controlled_app},
-            1: {"START / STOP APP": self.toggle_app_running},
-            2: {"DISABLE INPUT 1": self.disable_first_input},
-            3: {"DISABLE INPUT 2": self.disable_second_input},
-            4: {"CUTOFF MODE HARD": self.set_hard_mode},
-            5: {"CUTOFF MODE FADE": self.set_fade_mode},
-            6: {"MUTE / UNMUTE": self.set_mute_unmute},
-            7: {"HARD CUT + FADE UP": self.set_hard_fade_mode},
-            8: {"FADE DOWN + HARD UP": self.set_fade_hard_mode},
-            9: {"MUTE + FADE UP": self.set_mute_fade_mode},
-            10: {"MUTE + HARD UP": self.set_mute_hard_mode}
+            0: {"mute_controlled_app": self.mute_controlled_app},
+            1: {"start_stop_app": self.toggle_app_running},
+            2: {"disable_input_1": self.disable_first_input},
+            3: {"disable_input_2": self.disable_second_input},
+            4: {"cutoff_mode_hard": self.set_hard_mode},
+            5: {"cutoff_mode_fade": self.set_fade_mode},
+            6: {"mute_unmute": self.set_mute_unmute},
+            7: {"hard_cut_fade_up": self.set_hard_fade_mode},
+            8: {"fade_down_hard_up": self.set_fade_hard_mode},
+            9: {"mute_fade_up": self.set_mute_fade_mode},
+            10: {"mute_hard_up": self.set_mute_hard_mode}
         }
 
     def get_actions(self):
         return self.actions
+
+    def get_action_display_names(self):
+        translated_actions = {}
+        for key, action_dict in self.actions.items():
+            action_key = next(iter(action_dict.keys()))
+            translated_name = self.translator.translate(action_key)
+            translated_actions[key] = {action_key: translated_name}
+        return translated_actions
+
+    def get_action_name_by_name(self, name):
+        for action_dict in self.actions.values():
+            if name in action_dict:
+                return self.translator.translate(name)
+        return None
 
     def mute_controlled_app(self):
         if self.is_manually_muted:

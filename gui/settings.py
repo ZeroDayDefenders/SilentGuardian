@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFrame, QHBoxLayout, Q
 from backend.config import Config
 
 import version
+from backend.translator import Translator
 
 
 class Settings(QWidget):
@@ -14,6 +15,7 @@ class Settings(QWidget):
         super().__init__()
 
         self.config = Config()
+        self.translator = Translator()
 
         self.settings_core = settings_core
 
@@ -30,6 +32,7 @@ class Settings(QWidget):
         self.newTheme = self.config.selectedTheme
         self.newScaleTitlebar = self.config.scaleTitlebar
         self.newScaleMessageBox = self.config.scaleMessageBox
+        self.newLanguage = self.config.language
 
         self.initUI()
 
@@ -55,7 +58,7 @@ class Settings(QWidget):
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(5, 0, 5, 0)
 
-        header = QLabel("Settings:")
+        header = QLabel(f"{self.translator.translate('settings')}:")
         header.setFixedHeight(self.labelHeight)
         header.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -73,7 +76,7 @@ class Settings(QWidget):
         launch = QWidget()
         launchLayout = QHBoxLayout(launch)
 
-        label = QLabel("Auto launch on windows startup")
+        label = QLabel(self.translator.translate("auto_launch_on_windows_startup"))
         label.setFixedHeight(self.labelHeight)
         label.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -100,7 +103,7 @@ class Settings(QWidget):
         tray = QWidget()
         trayLayout = QHBoxLayout(tray)
 
-        label = QLabel("Minimize to app tray when closing")
+        label = QLabel(self.translator.translate("minimize_to_app_tray_when_closing"))
         label.setFixedHeight(self.labelHeight)
         label.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-smallest']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -134,7 +137,7 @@ class Settings(QWidget):
         scalableTitlebar = QWidget()
         scalableTitlebarLayout = QHBoxLayout(scalableTitlebar)
 
-        label = QLabel("Scale titlebar")
+        label = QLabel(self.translator.translate("scale_titlebar"))
         label.setFixedHeight(self.labelHeight)
         label.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -162,7 +165,7 @@ class Settings(QWidget):
         scalableMessageBox = QWidget()
         scalableMessageBoxLayout = QHBoxLayout(scalableMessageBox)
 
-        label = QLabel("Scale message box")
+        label = QLabel(self.translator.translate("scale_message_box"))
         label.setFixedHeight(self.labelHeight)
         label.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -197,7 +200,7 @@ class Settings(QWidget):
         scaleWidget = QWidget()
         scaleLayout = QHBoxLayout(scaleWidget)
 
-        label = QLabel("Scale")
+        label = QLabel(self.translator.translate("scale"))
         label.setFixedHeight(self.labelHeight)
         label.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -265,7 +268,7 @@ class Settings(QWidget):
         theme = QWidget()
         themeLayout = QHBoxLayout(theme)
 
-        label = QLabel("Theme")
+        label = QLabel(self.translator.translate("theme"))
         label.setFixedHeight(self.labelHeight)
         label.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -313,8 +316,8 @@ class Settings(QWidget):
                         background-color: {self.config.colorMode[self.config.selectedTheme]['primaryColor']};
                     }}
                 """)
-        self.themeComboBox.addItem('LIGHT')
-        self.themeComboBox.addItem('DARK')
+        self.themeComboBox.addItem(f'{self.translator.translate("light")}')
+        self.themeComboBox.addItem(f'{self.translator.translate("dark")}')
 
         self.themeComboBox.setCurrentIndex(self.config.selectedTheme)
 
@@ -325,6 +328,75 @@ class Settings(QWidget):
 
         themeLayout.setContentsMargins(0, 4, 0, 4)
 
+        # LANGUAGE #
+
+        language = QWidget()
+        languageLayout = QHBoxLayout(language)
+
+        label = QLabel(self.translator.translate("language"))
+        label.setFixedHeight(self.labelHeight)
+        label.setStyleSheet(
+            f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
+
+        self.languageComboBox = QComboBox()
+        self.languageComboBoxIcon = "url(:/arrow_down.svg)" if self.config.selectedTheme == 0 else "url(:/arrow_down_dark.svg)"
+        self.languageComboBox.setFixedSize(self.comboboxWidth + 10, self.labelHeight)
+        self.languageComboBox.setStyleSheet(f"""
+                            QComboBox{{
+                                border: none;
+                                background: {self.config.colorMode[self.config.selectedTheme]['widgetBackground']};
+                                color: {self.config.colorMode[self.config.selectedTheme]['text-color']};
+                                border-radius: 4px;
+                                padding-left: 10px;
+                                font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']};
+                                font-weight: 600;
+                                text-align: center;
+                            }}
+                            QComboBox::drop-down{{
+                                border: 0px;
+                            }}
+                            QComboBox::down-arrow{{
+                                image: {self.languageComboBoxIcon};
+                                width: {self.comboboxArrowSize}px;
+                                height: {self.comboboxArrowSize}px;
+                                margin-right: {self.comboboxArrowMargin}px;
+                            }}
+                            QComboBox QListView{{
+                                font-size: {self.config.scale[self.config.selectedScale]['font-size-smaller']};
+                                border: 1px solid rgba(0, 0, 0, 10%);
+                                padding: 5px;
+                                background-color: {self.config.colorMode[self.config.selectedTheme]['widgetBackground']};
+                                outline: 0px;
+                            }}
+                            QComboBox QListView:item{{
+                                padding-left: 10px;
+                                background-color: {self.config.colorMode[self.config.selectedTheme]['widgetBackground']};
+                                color: {self.config.colorMode[self.config.selectedTheme]['text-color']};
+                            }}
+                            QComboBox QListView:item:hover{{
+                                background-color: {self.config.colorMode[self.config.selectedTheme]['primaryColor']};
+                            }}
+                            QComboBox QListView:item:selected {{
+                                color: #fff;
+                                background-color: {self.config.colorMode[self.config.selectedTheme]['primaryColor']};
+                            }}
+                        """)
+        languages = Translator.get_available_languages()
+        for lang in languages:
+            self.languageComboBox.addItem(lang['name'], lang['code'])
+
+        current_lang = self.config.language
+        index = self.languageComboBox.findData(current_lang)
+        if index >= 0:
+            self.languageComboBox.setCurrentIndex(index)
+
+        self.languageComboBox.currentIndexChanged.connect(self.currentIndexChanged)
+
+        languageLayout.addWidget(label)
+        languageLayout.addWidget(self.languageComboBox)
+
+        languageLayout.setContentsMargins(0, 4, 0, 4)
+
         # LINE 4 (SEPARATOR) #
 
         line4 = QFrame()
@@ -334,7 +406,7 @@ class Settings(QWidget):
 
         # RESTART BUTTON #
 
-        self.restart = QPushButton("Restart required for changes")
+        self.restart = QPushButton(self.translator.translate("restart_required_for_changes"))
         self.restart.setFixedHeight(int(36 * self.config.scale[self.config.selectedScale]['scale']))
         self.apply_button_styles(self.restart, '#EB4D4B', '#D34543', '#A83735')
         self.restart.clicked.connect(self.restartApp)
@@ -342,7 +414,7 @@ class Settings(QWidget):
 
         # FOOTER #
 
-        footer = QLabel(f"VERSION: {version.__version__}")
+        footer = QLabel(f"{self.translator.translate('version')}: {version.__version__}")
         footer.setStyleSheet(
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-footer']}; font-weight: 700; color: {self.config.colorMode[self.config.selectedTheme]['footerColor']};")
         footer.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
@@ -360,6 +432,7 @@ class Settings(QWidget):
         main_layout.addWidget(line3, 0, Qt.AlignmentFlag.AlignHCenter)
         main_layout.addWidget(scaleWidget)
         main_layout.addWidget(theme)
+        main_layout.addWidget(language)
         main_layout.addWidget(line4, 0, Qt.AlignmentFlag.AlignHCenter)
         main_layout.addWidget(self.restart)
 
@@ -377,6 +450,8 @@ class Settings(QWidget):
             self.newScale = sender.currentIndex()
         elif sender == self.themeComboBox:
             self.newTheme = sender.currentIndex()
+        elif sender == self.languageComboBox:
+            self.newLanguage = sender.currentData()
 
         self.checkIfRestartNeeded()
 
@@ -434,7 +509,8 @@ class Settings(QWidget):
 
     def checkIfRestartNeeded(self):
         if (self.config.scaleTitlebar != self.newScaleTitlebar or self.config.selectedScale != self.newScale or
-                self.config.selectedTheme != self.newTheme or self.config.scaleMessageBox != self.newScaleMessageBox):
+                self.config.selectedTheme != self.newTheme or self.config.scaleMessageBox != self.newScaleMessageBox or
+                self.config.language != self.newLanguage):
             self.restart.setVisible(True)
         else:
             self.restart.setVisible(False)
@@ -444,6 +520,7 @@ class Settings(QWidget):
         self.config.selectedScale = self.newScale
         self.config.selectedTheme = self.newTheme
         self.config.scaleMessageBox = self.newScaleMessageBox
+        self.config.language = self.newLanguage
         self.config.save()
         sys.argv = [sys.executable]
         script_path = os.path.abspath("main.py")

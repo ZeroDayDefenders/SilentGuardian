@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QSlider, QPushButton
 
 from backend.config import Config
+from backend.translator import Translator
 from gui.svg_color_widget import SVGColorWidget
 
 
@@ -14,6 +15,7 @@ class AppsSettings(QWidget):
         super().__init__()
 
         self.config = Config()
+        self.translator = Translator()
 
         self.iconSize = int(28 * self.config.scale[self.config.selectedScale]['scale'])
         self.infoWidgetSize = int(120 * self.config.scale[self.config.selectedScale]['scale'])
@@ -69,7 +71,7 @@ class AppsSettings(QWidget):
                               self.config.colorMode[self.config.selectedTheme]['text-color'])
         icon.setFixedSize(self.iconSize, self.iconSize)
 
-        label = QLabel("Normal sound level")
+        label = QLabel(self.translator.translate("normal_sound_level"))
         label.setStyleSheet(
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']};"
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 400;")
@@ -108,7 +110,7 @@ class AppsSettings(QWidget):
                               self.config.colorMode[self.config.selectedTheme]['text-color'])
         icon.setFixedSize(self.iconSize, self.iconSize)
 
-        label = QLabel("Turned down to level")
+        label = QLabel(self.translator.translate("turned_down_to_level"))
         label.setStyleSheet(
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']};"
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 400;")
@@ -149,7 +151,7 @@ class AppsSettings(QWidget):
         normalLayout = QVBoxLayout(normal)
         normalLayout.setContentsMargins(5, 0, 5, 5)
 
-        label = QLabel("Normal sound level:")
+        label = QLabel(self.translator.translate("normal_sound_level"))
         label.setFixedHeight(self.labelHeight)
         label.setStyleSheet(
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']};"
@@ -206,7 +208,7 @@ class AppsSettings(QWidget):
         reducedLayout = QVBoxLayout(reduced)
         reducedLayout.setContentsMargins(5, 0, 5, 5)
 
-        label = QLabel("Turned down to level:")
+        label = QLabel(self.translator.translate("turned_down_to_level"))
         label.setFixedHeight(self.labelHeight)
         label.setStyleSheet(
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']};"
@@ -262,11 +264,11 @@ class AppsSettings(QWidget):
         buttons = QWidget()
         buttonsLayout = QVBoxLayout(buttons)
 
-        acceptButton = QPushButton("Accept")
+        acceptButton = QPushButton(self.translator.translate("accept"))
         acceptButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(acceptButton, '#3498DB', '#2980b9', '#206694')
 
-        cancelButton = QPushButton("Cancel")
+        cancelButton = QPushButton(self.translator.translate("cancel"))
         cancelButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(cancelButton, '#EB4D4B', '#D34543', '#A83735')
 

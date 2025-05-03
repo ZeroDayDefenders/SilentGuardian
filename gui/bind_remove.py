@@ -2,6 +2,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton
 
 from backend.config import Config
+from backend.translator import Translator
 
 
 class BindRemove(QWidget):
@@ -12,6 +13,7 @@ class BindRemove(QWidget):
         super().__init__()
 
         self.config = Config()
+        self.translator = Translator()
         self.binds = binds
 
         self.buttonHeight = int(32 * self.config.scale[self.config.selectedScale]['scale'])
@@ -29,7 +31,7 @@ class BindRemove(QWidget):
         dialog = QWidget()
         dialogLayout = QVBoxLayout(dialog)
 
-        header = QLabel("Are you sure?")
+        header = QLabel(f"{self.translator.translate('are_you_sure')}")
         header.setFixedHeight(self.labelHeight)
         header.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-dialog-bigger']};"
@@ -37,7 +39,7 @@ class BindRemove(QWidget):
         header.setContentsMargins(0, 0, 0, 0)
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        info = QLabel("You want do delete this bind?")
+        info = QLabel(f"{self.translator.translate('you_want_to_delete_this_bind')}")
         info.setFixedHeight(self.labelHeight)
         info.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-dialog-smaller']};"
@@ -82,11 +84,11 @@ class BindRemove(QWidget):
         buttons = QWidget()
         buttonsLayout = QVBoxLayout(buttons)
 
-        acceptButton = QPushButton("Accept")
+        acceptButton = QPushButton(f"{self.translator.translate('accept')}")
         acceptButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(acceptButton, '#3498DB', '#2980b9', '#206694')
 
-        cancelButton = QPushButton("Cancel")
+        cancelButton = QPushButton(f"{self.translator.translate('cancel')}")
         cancelButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(cancelButton, '#EB4D4B', '#D34543', '#A83735')
 

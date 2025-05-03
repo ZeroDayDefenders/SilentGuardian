@@ -5,6 +5,7 @@ from PyQt6.QtCore import Qt, pyqtSignal, QEvent
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QScrollArea
 
 from backend.config import Config
+from backend.translator import Translator
 from gui.svg_color_widget import SVGColorWidget
 
 
@@ -15,6 +16,7 @@ class Apps(QWidget):
         super().__init__()
 
         self.config = Config()
+        self.translator = Translator()
 
         self.audio_session_manager = audio_session_manager
         self.update_sound_manager_app = update_sound_manager_app
@@ -49,7 +51,7 @@ class Apps(QWidget):
 
         icon = SVGColorWidget(':/input.svg', self.iconSize, self.iconSize, self.config.colorMode[self.config.selectedTheme]['text-color'])
 
-        label = QLabel("Normal sound level")
+        label = QLabel(self.translator.translate('normal_sound_level'))
         label.setStyleSheet(
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']};"
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 400;")
@@ -90,7 +92,7 @@ class Apps(QWidget):
                               self.config.colorMode[self.config.selectedTheme]['text-color'])
         icon.setFixedSize(self.iconSize, self.iconSize)
 
-        label = QLabel("Turned down to level")
+        label = QLabel(self.translator.translate('turned_down_to_level'))
         label.setStyleSheet(
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']};"
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 400;")
@@ -128,7 +130,7 @@ class Apps(QWidget):
         self.appsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.appsLayout.setSpacing(int(5 * self.config.scale[self.config.selectedScale]['scale']))
 
-        header = QLabel("Apps:")
+        header = QLabel(f"{self.translator.translate('apps')}:")
         header.setFixedHeight(int(30 * self.config.scale[self.config.selectedScale]['scale']))
         header.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']};"

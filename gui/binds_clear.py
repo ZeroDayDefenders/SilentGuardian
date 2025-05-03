@@ -2,6 +2,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 
 from backend.config import Config
+from backend.translator import Translator
 
 
 class BindsClear(QWidget):
@@ -12,6 +13,8 @@ class BindsClear(QWidget):
         super().__init__()
 
         self.config = Config()
+
+        self.translator = Translator()
 
         self.buttonHeight = int(32 * self.config.scale[self.config.selectedScale]['scale'])
         self.labelHeight = int(30 * self.config.scale[self.config.selectedScale]['scale'])
@@ -25,14 +28,14 @@ class BindsClear(QWidget):
         dialog = QWidget()
         dialogLayout = QVBoxLayout(dialog)
 
-        header = QLabel("Are you sure?")
+        header = QLabel(f"{self.translator.translate('are_you_sure')}")
         header.setFixedHeight(self.labelHeight)
         header.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-dialog-bigger']}; font-weight: 700; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
         header.setContentsMargins(0, 0, 0, 0)
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        info = QLabel("You want to clear all binds?")
+        info = QLabel(f"{self.translator.translate('you_want_to_clear_all_binds')}")
         info.setFixedHeight(self.labelHeight)
         info.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-dialog-smaller']}; font-weight: 400; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -44,11 +47,11 @@ class BindsClear(QWidget):
         buttons = QWidget()
         buttonsLayout = QVBoxLayout(buttons)
 
-        acceptButton = QPushButton("Accept")
+        acceptButton = QPushButton(f"{self.translator.translate('accept')}")
         acceptButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(acceptButton, '#3498DB', '#2980b9', '#206694')
 
-        cancelButton = QPushButton("Cancel")
+        cancelButton = QPushButton(f"{self.translator.translate('cancel')}")
         cancelButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(cancelButton, '#EB4D4B', '#D34543', '#A83735')
 

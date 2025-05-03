@@ -2,8 +2,10 @@
 
 <h1 style="margin-top: 0; padding-top: 0">SilentGuardian</h1>
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://semver.org/) [![License](https://img.shields.io/badge/license-GPL--3.0-informational)](https://semver.org/)<br>
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://semver.org/) [![License](https://img.shields.io/badge/license-GPL--3.0-informational)](https://semver.org/)<br>
 SilentGuardian is a Python application built using the PyQt6 library, designed for sound analysis and automatic volume adjustments of selected application on your computer. With advanced sound processing algorithms, our tool allows users to monitor sound levels and react to them automatically and in a configurable manner.
+
+[![Main](/images/main.png)](/images/main.png)
 
 ## Table of Contents
 - [Key Features](#key-features)
@@ -39,6 +41,8 @@ SilentGuardian is a Python application built using the PyQt6 library, designed f
 
 ### Configurability:
 - Flexible customization to individual user preferences and needs.
+
+[![Cutoff](/images/cutoff.png)](/images/cutoff.png)
 
 ## Installation
 
@@ -87,6 +91,7 @@ silent_guardian/
 │ ├── cutoff.py
 │ ├── global_state_manager.py
 │ ├── logger.py 
+│ ├── translator.py
 │ └── settings.py
 │
 ├── gui/ # Modules containing the user interface
@@ -111,10 +116,12 @@ silent_guardian/
 │
 ├── resources/ # Application resources
 │ ├── fonts/
-| │ └── Poppins
+│ │ └── Poppins
 │ ├── icons/
 │ ├── resources.py
 │ └── resources.qrc
+│
+├── translations/
 │
 ├── README.md
 ├── requirements.txt
