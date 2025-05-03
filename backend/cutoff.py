@@ -19,9 +19,13 @@ class CutOff:
         self.is_running = False
         self.selected_mode_index = None
         self.logger = Logger()
-        self.volume_lock = False
         self.previous_process = self.sound_manager.process_name
         self.should_cutoff_run = False
+
+        self.fade_thread = None
+        self.is_fading = False
+        self.fade_direction = None
+        self.current_volume = None
 
     def set(self, index):
         self.selected_mode_index = index
@@ -97,10 +101,6 @@ class CutOff:
         self.is_faded = not self.is_faded
 
     def fade(self):
-        if self.volume_lock:
-            self.should_cutoff_run = True
-            return
-
         if self.is_faded:
             self.fade_audio(self.normal_level)
         else:
@@ -147,40 +147,91 @@ class CutOff:
         self.is_muted = not self.is_muted
 
     def fade_audio(self, target_level):
-        if not self.volume_lock or self.previous_process != self.sound_manager.process_name:
-            sound_manager = SoundManager(self.sound_manager.process_name)
-            fade_thread = FadeThread(sound_manager, target_level, self.duration, self)
-            fade_thread.start()
+        current_level = self.sound_manager.process_volume()
+        if current_level is None:
+            return
 
-        if self.previous_process == self.sound_manager.process_name:
-            self.volume_lock = True
-        else:
-            self.previous_process = self.sound_manager.process_name
+        self.current_volume = current_level
 
-    def check_if_cutoff_should_run(self):
-        if self.should_cutoff_run:
-            self.fade()
-            self.should_cutoff_run = False
+        self.fade_direction = 'up' if target_level > current_level else 'down'
+
+        if self.is_fading:
+            if self.fade_thread is not None:
+                self.fade_thread.stop()
+                self.fade_thread = None
+
+        self.is_fading = True
+        self.fade_thread = FadeThread(
+            self.debug,
+            self.sound_manager,
+            target_level,
+            self.duration,
+            self
+        )
+        self.fade_thread.start()
+
+    def interrupt_fade_if_needed(self):
+        if self.is_fading and self.fade_direction == 'up':
+            if self.fade_thread is not None:
+                self.current_volume = self.sound_manager.process_volume()
+                self.fade_thread.stop()
+                self.fade_thread = None
+                if self.current_volume is not None:
+                    self.start_fade_down()
+            self.is_fading = False
+            self.is_faded = True
+            return True
+        return False
+
+    def start_fade_down(self):
+        self.fade_audio(self.reduced_level)
 
 
 class FadeThread(threading.Thread):
-    def __init__(self, sound_manager, target_level, duration, cutoff_instance):
+    def __init__(self, debug, sound_manager, target_level, duration, cutoff_instance):
         super().__init__()
+        self.debug = debug
         self.sound_manager = sound_manager
         self.target_level = target_level
         self.duration = duration
         self.cutoff_instance = cutoff_instance
+        self._stop_event = threading.Event()
+        self.daemon = True
+
+    def stop(self):
+        self._stop_event.set()
 
     def run(self):
         current_level = self.sound_manager.process_volume()
+        if current_level is None:
+            self.cutoff_instance.is_fading = False
+            return
+
         start_time = time.time()
-        while True:
+
+        while not self._stop_event.is_set():
             elapsed = time.time() - start_time
             if elapsed > self.duration:
                 break
-            new_level = current_level + (self.target_level - current_level) * (elapsed / self.duration)
-            self.sound_manager.set_volume(new_level)
+
+            try:
+                new_level = current_level + (self.target_level - current_level) * (elapsed / self.duration)
+                self.sound_manager.set_volume(new_level)
+            except Exception as e:
+                Logger().log("FadeThread", f"Error during fade: {e}")
+                if self.debug:
+                    print(f"Error during fade: {e}")
+                break
+
             time.sleep(0.01)
-        self.sound_manager.set_volume(self.target_level)
-        self.cutoff_instance.volume_lock = False
-        self.cutoff_instance.check_if_cutoff_should_run()
+
+        if not self._stop_event.is_set():
+            try:
+                self.sound_manager.set_volume(self.target_level)
+            except Exception as e:
+                Logger().log("FadeThread", f"Error while setting the final level: {e}")
+                if self.debug:
+                    print(f"Error while setting the final level: {e}")
+
+        self.cutoff_instance.is_fading = False
+        self.cutoff_instance.fade_thread = None

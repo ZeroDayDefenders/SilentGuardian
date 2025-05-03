@@ -10,6 +10,7 @@ from backend.cutoff import CutOff
 from backend.global_state_manager import GlobalStateManager
 from backend.logger import Logger
 from backend.settings import Settings
+from backend.translator import Translator
 from gui.custom_messagebox import CustomMessageBox
 from gui.main_window import MainWindow
 
@@ -25,6 +26,7 @@ class Core:
         self.logger.log("Core", "Application started")
         self.window = None
         self.config = Config()
+        self.translator = Translator()
         self.input_device_manager = InputDeviceManager()
         self.audio_session_manager = AudioSessionManager()
         self.sound_manager = SoundManager(self.config.selectedApp)

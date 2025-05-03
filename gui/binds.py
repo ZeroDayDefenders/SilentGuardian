@@ -1,9 +1,12 @@
 import math
 
-from PyQt6.QtCore import Qt, pyqtSignal, QEvent
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QScrollArea, QHBoxLayout, QPushButton, QSizePolicy, QLabel
+from PyQt6.QtCore import Qt, pyqtSignal, QEvent, QTimer
+from PyQt6.QtGui import QFontMetrics, QFont
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QScrollArea, QHBoxLayout, QPushButton, QSizePolicy, QLabel, \
+    QApplication
 
 from backend.config import Config
+from backend.translator import Translator
 
 
 class Binds(QWidget):
@@ -14,6 +17,7 @@ class Binds(QWidget):
         super().__init__()
 
         self.config = Config()
+        self.translator = Translator()
 
         self.binds_core = binds
 
@@ -53,7 +57,7 @@ class Binds(QWidget):
         self.bindsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.bindsLayout.setSpacing(5)
 
-        header = QLabel("Binds:")
+        header = QLabel(f"{self.translator.translate('binds')}:")
         header.setFixedHeight(int(30 * self.config.scale[self.config.selectedScale]['scale']))
         header.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']};"
@@ -61,7 +65,7 @@ class Binds(QWidget):
         header.setContentsMargins(5, 0, 0, 0)
 
         if len(self.binds_core.get().items()) == 0:
-            self.addBindWidget(-1, "No binds, create one!", "")
+            self.addBindWidget(-1, self.translator.translate("no_binds_create_one"), "")
 
         for key, value in self.binds_core.get().items():
             for combination, action in value.items():
@@ -99,16 +103,16 @@ class Binds(QWidget):
         buttons = QWidget()
         buttonsLayout = QHBoxLayout(buttons)
 
-        addButton = QPushButton("Add")
+        addButton = QPushButton(self.translator.translate("add"))
         addButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(addButton)
 
-        self.removeButton = QPushButton("Remove")
+        self.removeButton = QPushButton(self.translator.translate("remove"))
         self.removeButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(self.removeButton)
         self.removeButton.setDisabled(True)
 
-        clearButton = QPushButton("Clear")
+        clearButton = QPushButton(self.translator.translate("clear"))
         clearButton.setFixedHeight(self.buttonHeight)
         clearButton.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum))
         self.apply_button_styles(clearButton)
@@ -148,13 +152,15 @@ class Binds(QWidget):
 
         actionLabel = QLabel(str(action))
         actionLabel.setObjectName("Action")
+        label_width = int(220 * self.config.scale[self.config.selectedScale]['scale'])
+        actionLabel.setMinimumWidth(label_width)
         actionLabel.setStyleSheet(
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smallest']};"
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 700;")
         actionLabel.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
-        bind_layout.addWidget(keybindLabel)
-        bind_layout.addWidget(actionLabel)
+        bind_layout.addWidget(keybindLabel, 1)
+        bind_layout.addWidget(actionLabel, 3)
 
         if key != -1:
             bind_widget.installEventFilter(self)
@@ -177,7 +183,7 @@ class Binds(QWidget):
         widget.deleteLater()
         self.binds_core.remove(self.lastSelectedBind)
         if len(self.binds_core.get().items()) == 0:
-            self.addBindWidget(-1, "No binds, create one!", "")
+            self.addBindWidget(-1, self.translator.translate("no_binds_create_one"), "")
 
     def clearBinds(self):
         self.binds_core.clear()
@@ -187,7 +193,7 @@ class Binds(QWidget):
             if widget:
                 widget.deleteLater()
 
-        self.addBindWidget(-1, "No binds, create one!", "")
+        self.addBindWidget(-1, self.translator.translate("no_binds_create_one"), "")
 
     def emitRemoveBind(self):
         if self.selectedBind is not None:
@@ -201,9 +207,13 @@ class Binds(QWidget):
             keybind.setStyleSheet(
                 f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smallest']};"
                 f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 500;")
-            action.setStyleSheet(
-                f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smallest']};"
-                f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 700;")
+
+            font_size = self.updateFontSize(widget)
+            if font_size:
+                action.setStyleSheet(
+                    f"font-size: {font_size}px;"
+                    f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 700;")
+
             self.selectedBind = None
             self.removeButton.setDisabled(True)
 
@@ -231,14 +241,51 @@ class Binds(QWidget):
     def getWidgetByName(self, widget_name):
         return self.binds.findChild(QWidget, widget_name)
 
+    def updateFontSize(self, widget=None, text=None, width=None):
+        if widget:
+            action = widget.findChild(QLabel, "Action")
+            if not action:
+                return None
+
+            action_text = action.text()
+
+            label_width = action.width() - 20
+            if label_width <= 0:
+                label_width = int(220 * self.config.scale[self.config.selectedScale]['scale']) - 20
+
+        elif text and width:
+            action_text = text
+            label_width = width
+
+        else:
+            return None
+
+        font = QFont()
+        font.setBold(True)
+        base_font_size = int(self.config.scale[self.config.selectedScale]['font-size-smallest'].replace('px', ''))
+        font_size = base_font_size
+        font.setPointSize(font_size)
+
+        metrics = QFontMetrics(font)
+        text_width = metrics.horizontalAdvance(action_text)
+
+        while text_width > label_width and font_size > 8:
+            font_size -= 1
+            font.setPointSize(font_size)
+            metrics = QFontMetrics(font)
+            text_width = metrics.horizontalAdvance(action_text)
+
+        if widget and action:
+            action.setFont(font)
+
+        return font_size
+
     def eventFilter(self, watched, event):
         if event.type() == QEvent.Type.MouseButtonPress:
             # SELECT BIND WITH WHATEVER MOUSE BUTTON #
             key = int(str(watched.objectName()).split("_")[-1])
             if key != self.selectedBind:
                 lastSelectedWidget = self.getWidgetByName(f"BindWidget_{self.selectedBind}")
-                widget = self.getWidgetByName(watched.objectName())
-
                 if lastSelectedWidget:
                     lastSelectedWidget.setStyleSheet(
                         f"background: {self.config.colorMode[self.config.selectedTheme]['widgetBackground']};"
@@ -250,13 +297,16 @@ class Binds(QWidget):
                             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smallest']};"
                             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 500;")
                     if action:
+                        font_size = self.updateFontSize(lastSelectedWidget)
                         action.setStyleSheet(
-                            f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smallest']};"
+                            f"font-size: {font_size}px;"
                             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 700;")
 
+                widget = self.getWidgetByName(watched.objectName())
                 if widget:
-                    widget.setStyleSheet(f"background: {self.config.colorMode[self.config.selectedTheme]['primaryColor']};"
-                                         f"border-radius: 5px;")
+                    widget.setStyleSheet(
+                        f"background: {self.config.colorMode[self.config.selectedTheme]['primaryColor']};"
+                        f"border-radius: 5px;")
                     keybind = widget.findChild(QLabel, "Keybind")
                     action = widget.findChild(QLabel, "Action")
                     if keybind:
@@ -264,13 +314,13 @@ class Binds(QWidget):
                             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smallest']};"
                             f"color: #ffffff; font-weight: 500;")
                     if action:
+                        font_size = self.updateFontSize(widget)
                         action.setStyleSheet(
-                            f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smallest']};"
+                            f"font-size: {font_size}px;"
                             f"color: #ffffff; font-weight: 700;")
 
                 self.removeButton.setDisabled(False)
                 self.selectedBind = key
-
             else:
                 # DESELECT BIND #
                 widget = self.getWidgetByName(watched.objectName())
@@ -279,13 +329,16 @@ class Binds(QWidget):
                     f"border-radius: 5px;")
                 keybind = widget.findChild(QLabel, "Keybind")
                 action = widget.findChild(QLabel, "Action")
+
                 if keybind:
                     keybind.setStyleSheet(
                         f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smallest']};"
                         f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 500;")
+
                 if action:
+                    font_size = self.updateFontSize(widget)
                     action.setStyleSheet(
-                        f"font-size: {self.config.scale[self.config.selectedScale]['font-size-smallest']};"
+                        f"font-size: {font_size}px;"
                         f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-weight: 700;")
 
                 self.removeButton.setDisabled(True)

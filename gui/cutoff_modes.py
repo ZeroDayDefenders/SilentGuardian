@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, QEvent
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSlider
 
 from backend.config import Config
+from backend.translator import Translator
 
 
 class CutoffModes(QWidget):
@@ -11,6 +12,7 @@ class CutoffModes(QWidget):
         super().__init__()
 
         self.config = Config()
+        self.translator = Translator()
 
         self.cutoff = cutoff
 
@@ -34,13 +36,13 @@ class CutoffModes(QWidget):
         self.sliderMargin = math.floor(int(7 * self.config.scale[self.config.selectedScale]['scale']) + self.addToSize)
 
         self.cutoffModes = {
-            0: "Hard",
-            1: "Fade",
-            2: "Mute / Unmute",
-            3: "Hard cut + fade up",
-            4: "Fade down + hard up",
-            5: "Mute + fade up",
-            6: "Mute + hard up"
+            0: f"{self.translator.translate('hard')}",
+            1: f"{self.translator.translate('fade')}",
+            2: f"{self.translator.translate('mute_unmute')}",
+            3: f"{self.translator.translate('hard_cut_fade_up')}",
+            4: f"{self.translator.translate('fade_down_hard_up')}",
+            5: f"{self.translator.translate('mute_fade_up')}",
+            6: f"{self.translator.translate('mute_hard_up')}"
         }
 
         self.initUI()
@@ -57,7 +59,7 @@ class CutoffModes(QWidget):
         self.modesLayout.setContentsMargins(5, 0, 5, 0)
         self.modesLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        header = QLabel("Cutoff modes:")
+        header = QLabel(f"{self.translator.translate('cutoff_modes')}:")
         header.setFixedHeight(int(30 * self.config.scale[self.config.selectedScale]['scale']))
         header.setStyleSheet(
             f"font-family: 'Poppins'; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']};"
@@ -98,7 +100,7 @@ class CutoffModes(QWidget):
         self.fadeLayout.setContentsMargins(5, 0, 7, 0)
         self.fadeLayout.setAlignment(Qt.AlignmentFlag.AlignBaseline)
 
-        label = QLabel("Fade duration:")
+        label = QLabel(f"{self.translator.translate('fade_duration')}:")
         label.setFixedHeight(int(30 * self.config.scale[self.config.selectedScale]['scale']))
         label.setStyleSheet(
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 500;"

@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QSlider, QLabel, QHBoxLayout, QPushButton
 
 from backend.config import Config
+from backend.translator import Translator
 
 
 class InputsSettings(QWidget):
@@ -13,6 +14,7 @@ class InputsSettings(QWidget):
         super().__init__()
 
         self.config = Config()
+        self.translator = Translator()
 
         self.input_manager = input_manager
 
@@ -53,7 +55,7 @@ class InputsSettings(QWidget):
         thresholdLayout = QVBoxLayout(threshold)
         thresholdLayout.setContentsMargins(5, 0, 5, 5)
 
-        label = QLabel("Threshold:")
+        label = QLabel(f"{self.translator.translate('threshold')}:")
         label.setFixedHeight(self.labelHeight)
         label.setStyleSheet(
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -105,7 +107,7 @@ class InputsSettings(QWidget):
         thresholdReachLayout = QVBoxLayout(thresholdReach)
         thresholdReachLayout.setContentsMargins(5, 0, 5, 5)
 
-        labelThresholdReach = QLabel("Threshold no reached:")
+        labelThresholdReach = QLabel(f"{self.translator.translate('threshold_not_reached')}:")
         labelThresholdReach.setFixedHeight(self.labelHeight)
         labelThresholdReach.setStyleSheet(
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -158,7 +160,7 @@ class InputsSettings(QWidget):
         thresholdSecondLayout = QVBoxLayout(thresholdSecond)
         thresholdSecondLayout.setContentsMargins(5, 0, 5, 5)
 
-        label = QLabel("Threshold of second input:")
+        label = QLabel(f"{self.translator.translate('threshold_of_second_input')}:")
         label.setFixedHeight(self.labelHeight)
         label.setStyleSheet(
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -211,7 +213,7 @@ class InputsSettings(QWidget):
         thresholdReachSecondLayout = QVBoxLayout(thresholdReachSecond)
         thresholdReachSecondLayout.setContentsMargins(5, 0, 5, 5)
 
-        label = QLabel("Threshold of second input:")
+        label = QLabel(f"{self.translator.translate('threshold_not_reached_second')}:")
         label.setFixedHeight(self.labelHeight)
         label.setStyleSheet(
             f"font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 500; color: {self.config.colorMode[self.config.selectedTheme]['text-color']};")
@@ -263,11 +265,11 @@ class InputsSettings(QWidget):
         buttons = QWidget()
         buttonsLayout = QVBoxLayout(buttons)
 
-        acceptButton = QPushButton("Accept")
+        acceptButton = QPushButton(self.translator.translate("accept"))
         acceptButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(acceptButton, '#3498DB', '#2980b9', '#206694')
 
-        cancelButton = QPushButton("Cancel")
+        cancelButton = QPushButton(self.translator.translate("cancel"))
         cancelButton.setFixedHeight(self.buttonHeight)
         self.apply_button_styles(cancelButton, '#EB4D4B', '#D34543', '#A83735')
 

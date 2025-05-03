@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
 
 from backend.config import Config
+from backend.translator import Translator
 from gui.svg_color_widget import SVGColorWidget
 
 
@@ -14,6 +15,7 @@ class Menu(QWidget):
         super().__init__()
 
         self.config = Config()
+        self.translator = Translator()
 
         self.width = int(250 * self.config.scale[self.config.selectedScale]['scale'])
         self.height = int(82 * self.config.scale[self.config.selectedScale]['scale'])
@@ -44,7 +46,7 @@ class Menu(QWidget):
 
         icon = SVGColorWidget(':/input.svg', self.iconSize, self.iconSize, self.config.colorMode[self.config.selectedTheme]['text-color'])
 
-        label = QLabel("Select input to listen")
+        label = QLabel(self.translator.translate("select_input_to_listen"))
         label.setContentsMargins(0, 0, 0, 5)
         label.setStyleSheet(
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 400;")
@@ -74,7 +76,7 @@ class Menu(QWidget):
 
         icon = SVGColorWidget(':/app.svg', self.iconSize, self.iconSize, self.config.colorMode[self.config.selectedTheme]['text-color'])
 
-        label = QLabel("Select app to control")
+        label = QLabel(self.translator.translate("select_app_to_control"))
         label.setContentsMargins(0, 0, 0, 5)
         label.setStyleSheet(
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 400;")
@@ -104,7 +106,7 @@ class Menu(QWidget):
 
         icon = SVGColorWidget(':/cutoff.svg', self.iconSize, self.iconSize, self.config.colorMode[self.config.selectedTheme]['text-color'])
 
-        label = QLabel("Cutoff mode")
+        label = QLabel(self.translator.translate("cutoff_mode"))
         label.setContentsMargins(0, 0, 0, 5)
         label.setStyleSheet(
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 400;")
@@ -134,7 +136,7 @@ class Menu(QWidget):
 
         icon = SVGColorWidget(':/binds.svg', self.iconSize, self.iconSize, self.config.colorMode[self.config.selectedTheme]['text-color'])
 
-        label = QLabel("Binds")
+        label = QLabel(self.translator.translate("binds"))
         label.setContentsMargins(0, 0, 0, 5)
         label.setStyleSheet(
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 400;")
@@ -164,7 +166,7 @@ class Menu(QWidget):
 
         icon = SVGColorWidget(':/settings.svg', self.iconSize, self.iconSize, self.config.colorMode[self.config.selectedTheme]['text-color'])
 
-        label = QLabel("Settings")
+        label = QLabel(self.translator.translate("settings"))
         label.setContentsMargins(0, 0, 0, 5)
         label.setStyleSheet(
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 400;")

@@ -34,7 +34,7 @@ class CustomMessageBox(QMainWindow):
     def __init__(self, mode, message, buttons):
         super().__init__()
         self.config = Config()
-        self.mode = 'SOUNDSYNC'
+        self.mode = 'SILENTGUARDIAN'
         match mode:
             case 0:
                 self.mode = 'Info'
@@ -89,7 +89,7 @@ class CustomMessageBox(QMainWindow):
 
         self.center()
 
-        self.setWindowTitle('SoundSync')
+        self.setWindowTitle('SilentGuardian')
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
 
         info = QWidget()

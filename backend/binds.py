@@ -2,12 +2,14 @@ import keyboard
 
 from backend.config import Config
 from backend.logger import Logger
+from backend.translator import Translator
 
 
 class Binds:
     def __init__(self, actions, debug):
         self.config = Config()
         self.logger = Logger()
+        self.translator = Translator()
         self.actions = actions
         self.debug = debug
         self.hotkeys_to_load = self.config.key_actions
@@ -29,7 +31,13 @@ class Binds:
         return True
 
     def get(self):
-        return self.loaded_hotkeys
+        translated_hotkeys = {}
+        for key, value in self.loaded_hotkeys.items():
+            hotkey_combo, action_name = next(iter(value.items()))
+            # Translate the action name for display
+            translated_name = self.translator.translate(action_name)
+            translated_hotkeys[key] = {hotkey_combo: translated_name}
+        return translated_hotkeys
 
     def push(self, hotkey, action):
         if self.debug:

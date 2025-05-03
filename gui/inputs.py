@@ -6,6 +6,7 @@ from PyQt6.QtCore import Qt, pyqtSignal, QEvent
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QStackedWidget, QScrollArea
 
 from backend.config import Config
+from backend.translator import Translator
 from gui.svg_color_widget import SVGColorWidget
 
 
@@ -16,6 +17,7 @@ class Inputs(QWidget):
         super().__init__()
 
         self.config = Config()
+        self.translator = Translator()
 
         self.iconSize = int(28 * self.config.scale[self.config.selectedScale]['scale'])
         self.infoWidgetSize = int(120 * self.config.scale[self.config.selectedScale]['scale'])
@@ -53,7 +55,7 @@ class Inputs(QWidget):
         icon = SVGColorWidget(':/threshold.svg', self.iconSize, self.iconSize,
                               self.config.colorMode[self.config.selectedTheme]['text-color'])
 
-        label = QLabel("Threshold")
+        label = QLabel(self.translator.translate("threshold"))
         label.setStyleSheet(
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 400;")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -91,7 +93,7 @@ class Inputs(QWidget):
                               self.config.colorMode[self.config.selectedTheme]['text-color'])
         icon.setFixedSize(self.iconSize, self.iconSize)
 
-        label = QLabel("Threshold not reached")
+        label = QLabel(self.translator.translate("threshold_not_reached"))
         label.setStyleSheet(
             f"color: {self.config.colorMode[self.config.selectedTheme]['text-color']}; font-size: {self.config.scale[self.config.selectedScale]['font-size-bigger']}; font-weight: 400;")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -133,7 +135,7 @@ class Inputs(QWidget):
         headerLayout = QHBoxLayout(header)
         headerLayout.setContentsMargins(0, 0, 0, 0)
 
-        headerLabel = QLabel("Inputs:")
+        headerLabel = QLabel(f"{self.translator.translate('inputs')}:")
         headerLabel.setFixedHeight(int(30 * self.config.scale[self.config.selectedScale]['scale']))
         headerLabel.setContentsMargins(5, 0, 0, 0)
         headerLabel.setStyleSheet(
@@ -231,10 +233,10 @@ class Inputs(QWidget):
         # tipsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         tipNames = [
-            'Select First Input',
-            'Select Second Input',
-            'Swap Inputs',
-            'Deselect Second Input'
+            f'{self.translator.translate("select_first_input")}',
+            f'{self.translator.translate("select_second_input")}',
+            f'{self.translator.translate("swap_inputs")}',
+            f'{self.translator.translate("deselect_second_input")}'
         ]
         tipMouseIcons = {
             0: {'path': ':/left.svg', 'width': 26, 'height': 36},
@@ -293,7 +295,7 @@ class Inputs(QWidget):
             if i == 0 or i == 1:
                 inputTile = QWidget()
                 inputTileLayout = QHBoxLayout(inputTile)
-                inputLabel = QLabel(f"Input {i + 1}")
+                inputLabel = QLabel(f"{self.translator.translate('input')} {i + 1}")
                 inputTile.setFixedHeight(int(32 * self.config.scale[self.config.selectedScale]['scale']))
                 if i == 0:
                     inputTile.setStyleSheet(
@@ -316,11 +318,11 @@ class Inputs(QWidget):
                 inputTileLayout = QHBoxLayout(inputTile)
                 inputTile.setFixedHeight(int(32 * self.config.scale[self.config.selectedScale]['scale']))
                 if i == 2:
-                    inputLabel = QLabel("Input 1")
+                    inputLabel = QLabel(f"{self.translator.translate('input')} 1")
                     inputTile.setStyleSheet(
                         f"background: {self.config.colorMode[self.config.selectedTheme]['primaryColor']}; border-radius: 5px;")
                 else:
-                    inputLabel = QLabel("Input 2")
+                    inputLabel = QLabel(f"{self.translator.translate('input')} 2")
                     inputTile.setStyleSheet(
                         f"background: {self.config.colorMode[self.config.selectedTheme]['secondaryColor']}; border-radius: 5px;")
                 inputLabel.setStyleSheet(
@@ -351,7 +353,7 @@ class Inputs(QWidget):
 
                 inputTile2 = QWidget()
                 inputTile2Layout = QHBoxLayout(inputTile2)
-                inputLabel2 = QLabel("Input 2")
+                inputLabel2 = QLabel(f"{self.translator.translate('input')} 2")
                 inputTile2.setFixedHeight(int(32 * self.config.scale[self.config.selectedScale]['scale']))
                 if i == 2:
                     inputTile2.setStyleSheet(

@@ -9,6 +9,7 @@ class Config:
     # UI
     selectedScale: int
     selectedTheme: int
+    language: str
     auto_launch: bool
     minimize_to_tray: bool
     scaleTitlebar: bool
@@ -112,6 +113,71 @@ class Config:
         }
     }
 
+    # Default English translation
+    default_translation = {
+        "language_name": "ENGLISH",
+        "select_input_to_listen": "Select input to listen",
+        "select_app_to_control": "Select app to control",
+        "cutoff_mode": "Cutoff mode",
+        "binds": "Binds",
+        "settings": "Settings",
+        "threshold": "Threshold",
+        "threshold_not_reached": "Threshold not reached",
+        "inputs": "Inputs",
+        "select_first_input": "Select First Input",
+        "select_second_input": "Select Second Input",
+        "swap_inputs": "Swap Inputs",
+        "deselect_second_input": "Deselect Second Input",
+        "input": "Input",
+        "threshold_of_second_input": "Threshold of second input",
+        "threshold_not_reached_second": "Threshold not reached second",
+        "create": "Create",
+        "accept": "Accept",
+        "cancel": "Cancel",
+        "add": "Add",
+        "remove": "Remove",
+        "clear": "Clear",
+        "normal_sound_level": "Normal sound level",
+        "turned_down_to_level": "Turned down to level",
+        "apps": "Apps",
+        "add_bind": "Add bind",
+        "key_bind": "Key bind",
+        "actions": "Actions",
+        "this_combination_exists": "This combination exists!",
+        "are_you_sure": "Are you sure?",
+        "you_want_to_delete_this_bind": "You want to delete this bind?",
+        "you_want_to_clear_all_binds": "You want to clear all binds?",
+        "no_binds_create_one": "No binds, create one!",
+        "cutoff_modes": "Cutoff modes",
+        "fade_duration": "Fade duration",
+        "hard": "HARD",
+        "fade": "FADE",
+        "show": "Show",
+        "quit": "Quit",
+        "auto_launch_on_windows_startup": "Auto launch on windows startup",
+        "minimize_to_app_tray_when_closing": "Minimize to app tray when closing",
+        "scale_titlebar": "Scale titlebar",
+        "scale_message_box": "Scale message box",
+        "scale": "Scale",
+        "theme": "Theme",
+        "light": "LIGHT",
+        "dark": "DARK",
+        "language": "Language",
+        "restart_required_for_changes": "Restart required for changes",
+        "mute_controlled_app": "MUTE CONTROLLED APP",
+        "start_stop_app": "START / STOP APP",
+        "disable_input_1": "DISABLE INPUT 1",
+        "disable_input_2": "DISABLE INPUT 2",
+        "cutoff_mode_hard": "CUTOFF MODE HARD",
+        "cutoff_mode_fade": "CUTOFF MODE FADE",
+        "mute_unmute": "MUTE / UNMUTE",
+        "hard_cut_fade_up": "HARD CUT + FADE UP",
+        "fade_down_hard_up": "FADE DOWN + HARD UP",
+        "mute_fade_up": "MUTE + FADE UP",
+        "mute_hard_up": "MUTE + HARD UP",
+        "version": "VERSION"
+    }
+
     _instance = None
 
     def __new__(cls):
@@ -127,6 +193,7 @@ class Config:
                     'key_actions': {},
                     'selectedScale': 0,
                     'selectedTheme': 0,
+                    'language': 'en',
                     'auto_launch': False,
                     'minimize_to_tray': True,
                     'scaleTitlebar': True,
@@ -146,9 +213,24 @@ class Config:
                 with open('config.json', 'w') as f:
                     json.dump(default_config, f, indent=4)
 
+            # Check and create translations folder and en.json if they don't exist
+            self.ensure_translations_exist()
+
             self.load()
 
             self._initialized = True
+
+    def ensure_translations_exist(self):
+        """Ensure the translations directory and default language file exist"""
+        # Create translations directory if it doesn't exist
+        if not os.path.exists('translations'):
+            os.makedirs('translations')
+
+        # Create default English translation file if it doesn't exist
+        en_path = os.path.join('translations', 'en.json')
+        if not os.path.exists(en_path):
+            with open(en_path, 'w', encoding='utf-8') as f:
+                json.dump(self.default_translation, f, indent=4, ensure_ascii=False)
 
     def load(self):
         with open('config.json') as f:
@@ -156,12 +238,18 @@ class Config:
         for key, value in config.items():
             setattr(self, key, value)
 
+        # Check translations again when loading config
+        self.ensure_translations_exist()
+
     def save(self):
         for key, value in asdict(self).items():
             setattr(self, key, value)
 
         data_to_save = asdict(self)
-        data_to_save.pop('_initialized', None)
+        # Remove instance variables that shouldn't be saved
+        for key in list(data_to_save.keys()):
+            if key.startswith('_') or key in ['scale', 'colorMode', 'default_translation']:
+                data_to_save.pop(key, None)
 
         with open('config.json', 'w') as f:
             json.dump(data_to_save, f, indent=4)
